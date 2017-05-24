@@ -1,8 +1,37 @@
-<h1>Solar Calculator</h1>
-<div class="col-xs-12" ng-init="drawSystem()">
-    <canvas id="myCanvas" width="600" height="600"></canvas>
+<div class="well col-md-12">
+    <div class="col-md-10">
+        <canvas id="myCanvas" width="1200" height="1200">
+        </canvas>
+    </div>
+    <div class="col-md-2">
+        <h3 ng-init="runwatch()">{{timeofday}}</h3>
+        <table class="table">
+            <thead>
+            <th>From</th>
+            <th>Distance</th>
+            <th>Planet</th>
+            </thead>
+            <tr ng-repeat="planet in planets">
+                <td>
+                    {{ planet.name }}
+                </td>
+                <td>
+                    <table class="table">
+                        <tr ng-repeat="connection in planet.connectivity">
+                            <td>{{connection.name}}</td>
+                            <td>{{connection.distance}}</td>
+                            <td><button type="button" ng-click="highlightfat(connection.src, connection.dst)">highlight</button></td>
+                        </tr>
+                    </table>
+                </td>
+                <td>
+
+                </td>
+            </tr>
+        </table>
+    </div>
 </div>
 
-<div>
-{{ earth }}
-</div>
+
+
+<h1 class="h1 text-center" ng-init="drawSystem()">Solar Calculator</h1>
