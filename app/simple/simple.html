@@ -1,0 +1,16 @@
+<h1>Simplified Entry</h1>
+
+
+<h1>Word Association</h1>
+<div class="col-xs-12" ng-init="idealocks()">
+    <label>Concept</label>
+    <select class="form-control" ng-model="assoc.concept_id">
+        <option ng-repeat="concept in concepts" value="{{concept.id}}">{{concept.name}} - {{concept.name_si}} - {{concept.name_th}}</option>
+    </select>
+    <div class="col-xs-4"><input type="text" ng-model="idealock.name" class="form-control" /></div>
+    <div class="col-xs-4"><input type="text" ng-model="idealock.parent_id" class="form-control" /></div>
+    <div class="col-xs-4"><input type="text" ng-model="idealock.child_id" class="form-control" /></div>
+    <div class="col-xs-4">
+        <button class="btn btn-lg" ng-click="reffer()">Add</button>
+    </div>
+</div>
