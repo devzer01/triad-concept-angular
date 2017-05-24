@@ -5,6 +5,10 @@
     </div>
     <div class="col-md-2">
         <h3 ng-init="runwatch()">{{timeofday}}</h3>
+
+        <input type="text" ng-change="$scope.travelintime()" datetime-picker ng-model="timewatch" date-format="yyyy-MM-dd HH:mm:ss" />
+        <button ng-click="travelintime()" type="button">Navigate</button>
+        <div>{{timewatch}}</div>
         <table class="table">
             <thead>
             <th>From</th>

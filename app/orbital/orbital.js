@@ -4,7 +4,7 @@
  *
  */
 
-angular.module('myApp.orbital', ['ngRoute'])
+angular.module('myApp.orbital', ['ngRoute', 'angularjs-datetime-picker'])
 
 .config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/orbital', {
@@ -22,6 +22,22 @@ angular.module('myApp.orbital', ['ngRoute'])
       ptimer = $interval($scope.moveday, 1000 * 60);
   };
 
+  $scope.timewatch;
+
+  /*scope.$watch($scope.timewatch, function (newval, oldval) {
+      console.log(oldval);
+        if (newval !== oldval) {
+            return travelintime(moment($scope.timewatch).unix());
+        }
+  });*/
+
+  $scope.travelintime = function() {
+        console.log('wait for portal');
+        $scope.portal = true;
+        $scope.moveday();
+        //console.log(moment($scope.timewatch).unix());
+  };
+
   let ctimer;
   $scope.runwatch = function () {
       if (angular.isDefined(ctimer)) return;
@@ -31,6 +47,7 @@ angular.module('myApp.orbital', ['ngRoute'])
   };
 
 
+  $scope.portal = false;
   $scope.timeofday =  moment().format("YYYY-MM-DD hh:mm:ss");
   $scope.canvas = document.getElementById('myCanvas');
   $scope.context = $scope.canvas.getContext('2d');
@@ -56,8 +73,9 @@ angular.module('myApp.orbital', ['ngRoute'])
 
     let calibrate = function(zero, year, pit) {
         let now = moment().unix();
-        if (pit) {
-            now = moment(pit).unix();
+        if ($scope.portal) {
+            now = moment($scope.timewatch).unix()
+            //now = moment(pit).unix();
         }
         let zeroDate = moment(zero).unix();
         let diff = null;
