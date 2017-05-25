@@ -1,14 +1,19 @@
 <div class="well col-md-12">
     <div class="col-md-10">
-        <canvas id="myCanvas" width="1200" height="1200">
+        <canvas id="myCanvas" width="1200" height="1000">
         </canvas>
     </div>
     <div class="col-md-2">
         <h3 ng-init="runwatch()">{{timeofday}}</h3>
 
         <input type="text" ng-change="$scope.travelintime()" datetime-picker ng-model="timewatch" date-format="yyyy-MM-dd HH:mm:ss" />
-        <button ng-click="travelintime()" type="button">Navigate</button>
-        <div>{{timewatch}}</div>
+        <button ng-click="travelintime()" type="button">Time Travel</button>
+        <div class="alert-info">
+            This is a primary version of a solar calculator, you can travel to past and future and
+            see how planets are positioned on a specific day.
+
+            <h3>Time machine is under maintenance</h3>
+        </div>
         <table class="table">
             <thead>
             <th>From</th>
