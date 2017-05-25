@@ -22,27 +22,24 @@ angular.module('myApp.orbital', ['ngRoute', 'angularjs-datetime-picker'])
       ptimer = $interval($scope.moveday, 1000 * 60);
   };
 
-  $scope.timewatch;
+  $scope.timewatch = null;
 
-  /*scope.$watch($scope.timewatch, function (newval, oldval) {
-      console.log(oldval);
-        if (newval !== oldval) {
-            return travelintime(moment($scope.timewatch).unix());
-        }
-  });*/
-
-  $scope.travelintime = function() {
-        console.log('wait for portal');
-        $scope.portal = true;
-        $scope.moveday();
-        //console.log(moment($scope.timewatch).unix());
+  $scope.timetravel = function() {
+      console.log('wait for portal');
+      $scope.now = moment($scope.timewatch).unix();
+      $scope.moveday();
   };
 
   let ctimer;
   $scope.runwatch = function () {
       if (angular.isDefined(ctimer)) return;
       ctimer = $interval(function () {
-          $scope.timeofday = moment().format("YYYY-MM-DD hh:mm:ss");
+          if ($scope.timewatch !== null) {
+              $scope.timeofday = moment($scope.timewatch).format("YYYY-MM-DD hh:mm");
+          } else {
+              $scope.timeofday = moment().format("YYYY-MM-DD hh:mm:ss");
+          }
+
       }, 1000);
   };
 
@@ -71,19 +68,21 @@ angular.module('myApp.orbital', ['ngRoute', 'angularjs-datetime-picker'])
         return (days * 24 * 60);
     };
 
+    $scope.travled = false;
+
+    $scope.now = moment().unix();
+
     let calibrate = function(zero, year, pit) {
-        let now = moment().unix();
-        if ($scope.portal) {
-            now = moment($scope.timewatch).unix()
-            //now = moment(pit).unix();
-        }
-        let zeroDate = moment(zero).unix();
+        let now = $scope.now / 60;
+        let zeroDate = moment(zero).unix() / 60;
+        console.log("now:" + now + " --- " + zeroDate);
         let diff = null;
         if (zeroDate > now) {
             diff = (zeroDate - now);
         } else {
             diff = (now - zeroDate);
         }
+
         return ((3.14 * 2) / year) * diff;
     };
 
@@ -110,10 +109,14 @@ angular.module('myApp.orbital', ['ngRoute', 'angularjs-datetime-picker'])
         mass: 5,
         name: "earth",
         distance: [distance(147), distance(151)].reverse(),
+        cbd: "2017-09-23 04:35:00",
         conyanow: calibrate("2017-09-23 04:35:00", (minutesPerYear(365))),
         color: "blue",
         move: function () {
             this.conyanow = this.conyanow + this.conayaperday;
+        },
+        travel: function (timestamp) {
+            this.conyanow = calibrate("2017-09-23 04:35:00", (minutesPerYear(365)), timestamp)
         },
         conayaperday: (3.14 * 2) / (minutesPerYear(365)), connectivity: [],
         position: {x: null, y: null}
@@ -125,10 +128,14 @@ angular.module('myApp.orbital', ['ngRoute', 'angularjs-datetime-picker'])
         mass: 4,
         name: "venus",
         distance: [distance(107), distance(108)].reverse(),
+        cbd: "2017-07-13 15:22:00",
         conyanow: calibrate("2017-07-13 15:22:00", (minutesPerYear(224))),
         color: "yellow",
         move: function () {
             this.conyanow = this.conyanow + this.conayaperday;
+        },
+        travel: function (timestamp) {
+            this.conyanow = calibrate("2017-07-13 15:22:00", (minutesPerYear(224)), timestamp)
         },
         conayaperday: (3.14 * 2) / (minutesPerYear(224)),  connectivity: [],
         position: {x: null, y: null}
@@ -140,11 +147,15 @@ angular.module('myApp.orbital', ['ngRoute', 'angularjs-datetime-picker'])
         mass: 3,
         name: "mercury",
         distance: [distance(47), distance(70)].reverse(),
+        cbd: "2017-09-02 10:10:00",
         conyanow: calibrate("2017-09-02 10:10:00", minutesPerYear(87)),
         //zerotime: moment("2017-09-02 10:10:00").unix(), //"10:10 02-09-2017",
         color: "silver",
         move: function () {
             this.conyanow = this.conyanow + this.conayaperday;
+        },
+        travel: function (timestamp) {
+            this.conyanow = calibrate("2017-09-02 10:10:00", (minutesPerYear(87)), timestamp)
         },
         conayaperday: (3.14 * 2) / minutesPerYear(87),  connectivity: [],
         position: {x: null, y: null}
@@ -155,11 +166,26 @@ angular.module('myApp.orbital', ['ngRoute', 'angularjs-datetime-picker'])
     $scope.mars = {
         distance: [distance(206), distance(249)].reverse(),
         name: "mars",
-        conyanow: calibrate("2016-12-07 00:14:00", minutesPerYear(686)),
+        cbd: "2016-12-07 00:14:00",
+        conyanow: function () {
+            //calibrate("2016-12-07 00:14:00", minutesPerYear(686)),
+            let now = $scope.now / 60;
+            let zeroDate = moment("2016-12-07 00:14:00").unix() / 60;
+            let diff = null;
+            if (zeroDate > now) {
+                diff = (zeroDate - now);
+            } else {
+                diff = (now - zeroDate);
+            }
+            return ((3.14 * 2) / minutesPerYear(686)) * -diff;
+        }(),
         color: "red",
         mass: 6,
         move: function () {
-            this.conyanow = this.conyanow + this.conayaperday;
+            this.conyanow = 180 - this.conyanow + this.conayaperday;
+        },
+        travel: function (timestamp) {
+            this.conyanow = calibrate("2016-12-07 00:14:00", (minutesPerYear(686)), timestamp)
         },
         conayaperday: (3.14 * 2) / minutesPerYear(686), connectivity: [],
         position: {x: null, y: null}
@@ -171,10 +197,14 @@ angular.module('myApp.orbital', ['ngRoute', 'angularjs-datetime-picker'])
         mass: 11,
         name: "jupitor",
         distance: [distance(741 / 2), distance(817 / 2)].reverse(),
+        cbd: "2010-10-16 12:01:00",
         conyanow: calibrate("2010-10-16 12:01:00", minutesPerYear(11 * 365)),
         color: "brown",
         move: function () {
             this.conyanow = this.conyanow + this.conayaperday;
+        },
+        travel: function (timestamp) {
+            this.conyanow = calibrate("2010-10-16 12:01:00", (minutesPerYear(11 * 365)), timestamp)
         },
         conayaperday: (3.14 * 2) / minutesPerYear(11 * 365), connectivity: [],
         position: {x: null, y: null}
@@ -186,10 +216,14 @@ angular.module('myApp.orbital', ['ngRoute', 'angularjs-datetime-picker'])
         mass: 7,
         name: "saturn",
         distance: [distance(1400 / 3), distance(1500 / 3)].reverse(),
+        cbd: "2025-12-04 17:01:00",
         conyanow: calibrate("2025-12-04 17:01:00", minutesPerYear(29 * 365)),
         color: "purple",
         move: function () {
             this.conyanow = this.conyanow + this.conayaperday;
+        },
+        travel: function (timestamp) {
+            this.conyanow = calibrate("2025-12-04 17:01:00", (minutesPerYear(29 * 365)), timestamp)
         },
         conayaperday: (3.14 * 2) / minutesPerYear(29 * 365),
         position: {x: null, y: null}, connectivity: [],
@@ -207,11 +241,15 @@ angular.module('myApp.orbital', ['ngRoute', 'angularjs-datetime-picker'])
     $scope.uranus = {
         mass: 5,
         name: "uranus",
+        cbd: "2011-03-18 08:22:00",
         distance: [distance(2500 / 5), distance(3000 / 5)].reverse(),
         conyanow: calibrate("2011-03-18 08:22:00", minutesPerYear(84 * 365)),
         color: "#67e5b3",
         move: function () {
             this.conyanow = this.conyanow + this.conayaperday;
+        },
+        travel: function (timestamp) {
+            this.conyanow = calibrate("2011-03-18 08:22:00", (minutesPerYear(84 * 365)), timestamp)
         },
         conayaperday: (3.14 * 2) / minutesPerYear(84 * 365),
         position: {x: null, y: null}, connectivity: []
@@ -251,6 +289,7 @@ angular.module('myApp.orbital', ['ngRoute', 'angularjs-datetime-picker'])
     $scope.points = [];
 
     $scope.move = function (planet) {
+
         let xPos = $scope.draw.x - (planet.distance[0] * Math.cos(planet.conyanow));
         let yPos = $scope.draw.y + (planet.distance[1] * Math.sin(planet.conyanow));
         let context = $scope.context;
@@ -329,7 +368,10 @@ angular.module('myApp.orbital', ['ngRoute', 'angularjs-datetime-picker'])
       $scope.context.clearRect(0, 0, 1200, 1200);
       $scope.points = []; $scope.matrix = [];
       $scope.star($scope.sun);
-      for (var i = 0; i < $scope.planets.length; i++) {
+      for (let i = 0; i < $scope.planets.length; i++) {
+          if ($scope.timewatch !== null) {
+              $scope.planets[i].travel($scope.timewatch);
+          }
           $scope.axis($scope.planets[i]);
           $scope.planets[i] = $scope.move($scope.planets[i]);
           $scope.line();
