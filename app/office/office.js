@@ -30,9 +30,9 @@ angular.module('myApp.office', ['ngRoute'])
   };
 
   $scope.create = function () {
-    $http.post('http://localhost/concept', {method: "POST", data: $scope.entry}).then(function (e) {
+    $http.post(AppConfig.host + '/concept', {method: "POST", data: $scope.entry}).then(function (e) {
         var concept_id = e.data.id;
-        $http.post('http://localhost/words/' + concept_id, {method: 'POST', data: $scope.words}).then(function (e) {
+        $http.post(AppConfig.host + '/words/' + concept_id, {method: 'POST', data: $scope.words}).then(function (e) {
           console.log('error');
         });
     });
@@ -42,7 +42,7 @@ angular.module('myApp.office', ['ngRoute'])
 
   $scope.reffer = function () {
       var word = {word: $scope.assoc.word, word_si: $scope.assoc.word_si, word_th: $scope.assoc.word_th};
-      $http.post('http://localhost/words/' + $scope.assoc.concept_id, {method: 'POST', data: [word]}).then(function (e) {
+      $http.post(AppConfig.host + '/words/' + $scope.assoc.concept_id, {method: 'POST', data: [word]}).then(function (e) {
           console.log('error');
       });
   };
@@ -67,7 +67,7 @@ angular.module('myApp.office', ['ngRoute'])
   };
 
   function driver(type) {
-    return 'http://localhost/' + type;
+    return AppConfig.host + type;
   }
 
 }]);

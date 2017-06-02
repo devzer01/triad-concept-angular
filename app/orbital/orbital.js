@@ -110,12 +110,12 @@ angular.module('myApp.orbital', ['ngRoute', 'angularjs-datetime-picker'])
         mass: 5,
         name: "earth",
         distance: [distance(147), distance(151)].reverse(),
-        conyanow: calibrate("2017-09-23 04:35:00", (minutesPerYear(365))),
+        conyanow: calibrate("2017-03-20 06:43:00", 365 * 24 * 60),
         color: "blue",
         move: function () {
             this.conyanow = this.conyanow + this.conayaperday;
         },
-        conayaperday: (3.14 * 2) / (minutesPerYear(365)), connectivity: [],
+        conayaperday: (3.14 * 2) / 365 * 24 * 60, connectivity: [],
         position: {x: null, y: null}
     };
 
@@ -220,8 +220,9 @@ angular.module('myApp.orbital', ['ngRoute', 'angularjs-datetime-picker'])
     $scope.uranus.add = addconnection.bind($scope.uranus);
 
 
-  $scope.planets = [$scope.mercury, $scope.venus, $scope.earth, $scope.mars, $scope.jupitor, $scope.saturn, $scope.uranus];
-  $scope.matrix = [
+  //$scope.planets = [$scope.mercury, $scope.venus, $scope.earth, $scope.mars, $scope.jupitor, $scope.saturn, $scope.uranus];
+    $scope.planets = [$scope.earth]
+    $scope.matrix = [
       { planet: null, connections: [
           {planet: null }
       ] }
@@ -242,7 +243,8 @@ angular.module('myApp.orbital', ['ngRoute', 'angularjs-datetime-picker'])
     $scope.axis = function(orbital) {
         var context = $scope.context;
       context.beginPath();
-      context.ellipse($scope.draw.x, $scope.draw.y, orbital.distance[0], orbital.distance[1], 0, 0, 2 * Math.PI);
+      //context.ellipse($scope.draw.x, $scope.draw.y, orbital.distance[0], orbital.distance[1], 0, 0, 2 * Math.PI);
+      context.arc($scope.draw.x, $scope.draw.y, orbital.distance[0], 0, 2 * Math.PI, true);
       context.lineWidth = 1;
       context.strokeStyle = 'black';
       context.stroke();
@@ -251,8 +253,8 @@ angular.module('myApp.orbital', ['ngRoute', 'angularjs-datetime-picker'])
     $scope.points = [];
 
     $scope.move = function (planet) {
-        let xPos = $scope.draw.x - (planet.distance[0] * Math.cos(planet.conyanow));
-        let yPos = $scope.draw.y + (planet.distance[1] * Math.sin(planet.conyanow));
+        let xPos = $scope.draw.x + (planet.distance[0] * Math.cos(planet.conyanow));
+        let yPos = $scope.draw.y + (planet.distance[0] * Math.sin(planet.conyanow));
         let context = $scope.context;
         planet.position.x = xPos;
         planet.position.y = yPos;
@@ -332,11 +334,15 @@ angular.module('myApp.orbital', ['ngRoute', 'angularjs-datetime-picker'])
       for (var i = 0; i < $scope.planets.length; i++) {
           $scope.axis($scope.planets[i]);
           $scope.planets[i] = $scope.move($scope.planets[i]);
-          $scope.line();
+          //$scope.line();
       }
     };
 
 }]);
+
+function planet() {
+
+}
 
 var getSphere = function (a, b) {
   var a2 = Math.pow(a, a);

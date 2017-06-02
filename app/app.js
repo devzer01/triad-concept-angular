@@ -1,5 +1,9 @@
 'use strict';
 
+var AppConfig = {
+    host: "//dev.oro.world/"
+};
+
 // Declare app level module which depends on views, and components
 angular.module('myApp', [
   'ngRoute',
@@ -11,5 +15,5 @@ angular.module('myApp', [
 config(['$locationProvider', '$routeProvider', function($locationProvider, $routeProvider) {
   $locationProvider.hashPrefix('!');
 
-  $routeProvider.otherwise({redirectTo: '/landing'});
+  $routeProvider.otherwise({redirectTo: '/orbital'});
 }]);
