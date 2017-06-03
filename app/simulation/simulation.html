@@ -1,0 +1,73 @@
+<div class="well col-md-12" ng-init="init()">
+    <div class="col-md-9"><canvas id="myCanvas" width="800" height="800"></canvas></div>
+    <div class="col-md-3">
+        <h3>{{timeofday}}</h3>
+        <form>
+            <div class="form-group">
+                <label for="navigation">Select Date</label>
+                <input type="text" id="navigation" datetime-picker ng-model="timewatch" date-format="yyyy-MM-dd HH:mm:ss" />
+            </div>
+            <div class="form-group">
+                <button class="btn" ng-click="history()" type="button">Navigate</button>
+            </div>
+        </form>
+
+        <h4>Solar Clock</h4>
+        <table class="table">
+            <tr ng-repeat="planet in planets">
+                <td>
+                    {{ planet.name }}
+                </td>
+                <td>
+                     {{ planet.timeing.minutes }}
+                </td>
+                <td>
+
+                </td>
+            </tr>
+        </table>
+        <h4>Debug</h4>
+        <table class="table table-striped">
+            <tr>
+                <td>Date</td>
+                <td>{{ mercury.oscillator.zerodiff }}</td>
+            </tr>
+            <tr>
+                <td>Angel</td>
+                <td>
+                    {{ mercury.oscillator.rad | number : 4 }} -
+                    {{ learn.oscillator.rad | number : 4 }}
+                </td>
+            </tr>
+            <tr>
+                <td>X</td>
+                <td>{{ mercury.oscillator.x }}</td>
+            </tr>
+            <tr>
+                <td>Y</td>
+                <td>{{ mercury.oscillator.y }}</td>
+            </tr>
+
+            <tr>
+                <td>cos</td>
+                <td>{{ mercury.oscillator.cos | number : 4  }} {{ learn.oscillator.cos | number : 4  }}</td>
+            </tr>
+            <tr>
+                <td>sin</td>
+                <td>{{ mercury.oscillator.sin | number : 4  }} {{ learn.oscillator.sin | number : 4  }}</td>
+            </tr>
+            <tr ng-repeat="point in points">
+                <td colspan="2">
+                {{ point.cos | number : 4 }}
+                {{ point.sin | number : 4 }}
+                {{ point.tan | number : 4 }}
+                </td>
+            </tr>
+        </table>
+
+    </div>
+</div>
+
+
+
+<h1 class="h1 text-center" ng-init="drawSystem()">Solar Calculator</h1>

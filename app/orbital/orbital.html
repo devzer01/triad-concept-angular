@@ -1,6 +1,6 @@
 <div class="well col-md-12">
     <div class="col-md-10">
-        <canvas id="myCanvas" width="1200" height="1200">
+        <canvas id="myCanvas" width="800" height="800">
         </canvas>
     </div>
     <div class="col-md-2">
@@ -20,13 +20,7 @@
                     {{ planet.name }}
                 </td>
                 <td>
-                    <table class="table">
-                        <tr ng-repeat="connection in planet.connectivity">
-                            <td>{{connection.name}}</td>
-                            <td>{{connection.distance}}</td>
-                            <td><button type="button" ng-click="highlightfat(connection.src, connection.dst)">highlight</button></td>
-                        </tr>
-                    </table>
+                    {{ planet.timeing.hour }}: {{ planet.timeing.minutes }}
                 </td>
                 <td>
 

@@ -15,218 +15,139 @@ angular.module('myApp.orbital', ['ngRoute', 'angularjs-datetime-picker'])
 
 .controller('OrbitalCtrl', ['$scope', '$interval', '$timeout', function($scope, $interval, $timeout) {
 
-  let ptimer;
-  $scope.drawSystem = function () {
-      if (angular.isDefined(ptimer)) return;
-      $scope.moveday();
-      ptimer = $interval($scope.moveday, 1000 * 60);
-  };
+    let base = 800 / 2;
 
-  $scope.timewatch;
-
-  /*scope.$watch($scope.timewatch, function (newval, oldval) {
-      console.log(oldval);
-        if (newval !== oldval) {
-            return travelintime(moment($scope.timewatch).unix());
-        }
-  });*/
-
-  $scope.travelintime = function() {
-        console.log('wait for portal');
-        $scope.portal = true;
+    let ptimer;
+    $scope.drawSystem = function () {
         $scope.moveday();
-        //console.log(moment($scope.timewatch).unix());
-  };
-
-  let ctimer;
-  $scope.runwatch = function () {
-      if (angular.isDefined(ctimer)) return;
-      ctimer = $interval(function () {
-          $scope.timeofday = moment().format("YYYY-MM-DD hh:mm:ss");
-      }, 1000);
-  };
+    };
 
 
-  $scope.portal = false;
   $scope.timeofday =  moment().format("YYYY-MM-DD hh:mm:ss");
   $scope.canvas = document.getElementById('myCanvas');
   $scope.context = $scope.canvas.getContext('2d');
   $scope.draw = {x: $scope.canvas.width / 2, y: $scope.canvas.height / 2};
   $scope.sun = { mass: 15, color: 'red'};
 
-    var distanceofl = function( point1, point2 ){
-        var xs = 0;
-        var ys = 0;
-
-        xs = point2.x - point1.x;
-        xs = xs * xs;
-
-        ys = point2.y - point1.y;
-        ys = ys * ys;
-
-        return Math.sqrt( xs + ys );
+    /**
+     * function to calibrate planet position
+     * @param x
+     * @param y
+     * @param distance
+     * @param calibdate
+     * @returns {{x: *, y: *}}
+     */
+    var calibrate = function(x, y, distance, zero, days, specific) {
+        var angel = todayAngel(zero, days, specific);
+        var x1 = x + Math.cos(angel) * distance;
+        var y1 = y + Math.sin(angel) * distance;
+        return {x: x1, y: y1}
     };
 
-    let minutesPerYear = function (days) {
-        return (days * 24 * 60);
-    };
-
-    let calibrate = function(zero, year, pit) {
-        let now = moment().unix();
-        if ($scope.portal) {
-            now = moment($scope.timewatch).unix()
-            //now = moment(pit).unix();
+    /**
+     *
+     * @param calibDate the date when planet orbits where y=0 and x is > 600
+     * @param days number of days for full cycle of planet
+     * @returns {number}
+     */
+    var todayAngel = function (zero, days, specific) {
+        var a = moment(zero);
+        var b = moment(Date.now());
+        if (specific != null) {
+            b = moment(specific);
         }
-        let zeroDate = moment(zero).unix();
-        let diff = null;
-        if (zeroDate > now) {
-            diff = (zeroDate - now);
-        } else {
-            diff = (now - zeroDate);
-        }
-        return ((3.14 * 2) / year) * diff;
+        return angelPer(days) * -1 * a.diff(b, 'days');
     };
 
-    const DENOMINATOR = 1;
-
-    let distance = function (distance) {
-        return distance / DENOMINATOR;
-    };
-
-
-    var connection = function(name, distance, src, dst) {
-        return {name: name, distance: distance, src: src, dst: dst};
-    };
-
-    let addconnection = function(name, distance, src, dst) {
-        let con = new connection(name, distance, src, dst);
-        let found = this.connectivity.find(function (v) {
-            return (v.name === name)
-        });
-        if (!found) this.connectivity.push(con);
+    /**
+     * returns radiant per day
+     * @param days
+     * @returns {number}
+     */
+    var angelPer = function(days) {
+        return Math.PI * 2 / days;
     };
 
     $scope.earth = {
         mass: 5,
         name: "earth",
-        distance: [distance(147), distance(151)].reverse(),
-        conyanow: calibrate("2017-03-20 06:43:00", 365 * 24 * 60),
+        distance: 147,
+        init: {x: base + this.distance, y: base},
+        zero: "2017-03-21",
         color: "blue",
-        move: function () {
-            this.conyanow = this.conyanow + this.conayaperday;
-        },
-        conayaperday: (3.14 * 2) / 365 * 24 * 60, connectivity: [],
-        position: {x: null, y: null}
+        days: 365,
+        timeing: {}
     };
-
-    $scope.earth.add = addconnection.bind($scope.earth);
 
     $scope.venus = {
         mass: 4,
         name: "venus",
-        distance: [distance(107), distance(108)].reverse(),
-        conyanow: calibrate("2017-07-13 15:22:00", (minutesPerYear(224))),
+        distance: 107,
+        init: {x: base + this.distance, y: base},
+        zero: "2017-03-23",
         color: "yellow",
-        move: function () {
-            this.conyanow = this.conyanow + this.conayaperday;
-        },
-        conayaperday: (3.14 * 2) / (minutesPerYear(224)),  connectivity: [],
-        position: {x: null, y: null}
+        days: 224,
+        timeing: {}
     };
-
-    $scope.venus.add = addconnection.bind($scope.venus);
 
     $scope.mercury = {
         mass: 3,
         name: "mercury",
-        distance: [distance(47), distance(70)].reverse(),
-        conyanow: calibrate("2017-09-02 10:10:00", minutesPerYear(87)),
-        //zerotime: moment("2017-09-02 10:10:00").unix(), //"10:10 02-09-2017",
+        distance: 47,
+        init: {x: base + this.distance, y: base},
+        zero: "2017-01-14",
         color: "silver",
-        move: function () {
-            this.conyanow = this.conyanow + this.conayaperday;
-        },
-        conayaperday: (3.14 * 2) / minutesPerYear(87),  connectivity: [],
-        position: {x: null, y: null}
+        days: 87,
+        timeing: {}
     };
-
-    $scope.mercury.add = addconnection.bind($scope.mercury);
 
     $scope.mars = {
-        distance: [distance(206), distance(249)].reverse(),
-        name: "mars",
-        conyanow: calibrate("2016-12-07 00:14:00", minutesPerYear(686)),
-        color: "red",
         mass: 6,
-        move: function () {
-            this.conyanow = this.conyanow + this.conayaperday;
-        },
-        conayaperday: (3.14 * 2) / minutesPerYear(686), connectivity: [],
-        position: {x: null, y: null}
+        distance: 190,
+        name: "mars",
+        init: {x: base + this.distance, y: base},
+        zero: "2016-01-13",
+        color: "red",
+        days: 686,
+        timeing: {}
     };
-
-    $scope.mars.add = addconnection.bind($scope.mars);
 
     $scope.jupitor = {
         mass: 11,
         name: "jupitor",
-        distance: [distance(741 / 2), distance(817 / 2)].reverse(),
-        conyanow: calibrate("2010-10-16 12:01:00", minutesPerYear(11 * 365)),
+        distance: 250,
+        init: {x: 850, y: 600 },
+        zero: "2016-08-11",
         color: "brown",
-        move: function () {
-            this.conyanow = this.conyanow + this.conayaperday;
-        },
-        conayaperday: (3.14 * 2) / minutesPerYear(11 * 365), connectivity: [],
-        position: {x: null, y: null}
+        days: 365 * 11,
+        timeing: {}
     };
-
-    $scope.jupitor.add = addconnection.bind($scope.jupitor);
 
     $scope.saturn = {
         mass: 7,
         name: "saturn",
-        distance: [distance(1400 / 3), distance(1500 / 3)].reverse(),
-        conyanow: calibrate("2025-12-04 17:01:00", minutesPerYear(29 * 365)),
+        distance: 300,
+        init: {x: base + this.distance, y: base},
+        zero: "2010-01-25",
         color: "purple",
-        move: function () {
-            this.conyanow = this.conyanow + this.conayaperday;
-        },
-        conayaperday: (3.14 * 2) / minutesPerYear(29 * 365),
-        position: {x: null, y: null}, connectivity: [],
-        add: function(name, distance) {
-            let con = new connection(name, distance);
-            let found = this.connectivity.find(function (v) {
-                return (v.name === name)
-            });
-            if (!found) this.connectivity.push(con);
-        }
+        days: 365 * 29,
+        timeing: {}
     };
-
-    $scope.saturn.add = addconnection.bind($scope.saturn);
 
     $scope.uranus = {
         mass: 5,
         name: "uranus",
-        distance: [distance(2500 / 5), distance(3000 / 5)].reverse(),
-        conyanow: calibrate("2011-03-18 08:22:00", minutesPerYear(84 * 365)),
+        distance: 350,
+        init: {x: base + this.distance, y: base},
+        zero: "1968-01-12",
         color: "#67e5b3",
-        move: function () {
-            this.conyanow = this.conyanow + this.conayaperday;
-        },
-        conayaperday: (3.14 * 2) / minutesPerYear(84 * 365),
-        position: {x: null, y: null}, connectivity: []
+        days: 84 * 365,
+        timeing: {}
     };
 
-    $scope.uranus.add = addconnection.bind($scope.uranus);
 
-
-  //$scope.planets = [$scope.mercury, $scope.venus, $scope.earth, $scope.mars, $scope.jupitor, $scope.saturn, $scope.uranus];
-    $scope.planets = [$scope.earth]
-    $scope.matrix = [
-      { planet: null, connections: [
-          {planet: null }
-      ] }
-  ];
+    $scope.planets = [$scope.mercury, $scope.venus, $scope.earth, $scope.mars,
+      $scope.jupitor, $scope.saturn, $scope.uranus];
 
 
     $scope.star = function (star) {
@@ -241,108 +162,154 @@ angular.module('myApp.orbital', ['ngRoute', 'angularjs-datetime-picker'])
     };
 
     $scope.axis = function(orbital) {
-        var context = $scope.context;
+      var context = $scope.context;
       context.beginPath();
-      //context.ellipse($scope.draw.x, $scope.draw.y, orbital.distance[0], orbital.distance[1], 0, 0, 2 * Math.PI);
-      context.arc($scope.draw.x, $scope.draw.y, orbital.distance[0], 0, 2 * Math.PI, true);
+      context.arc($scope.draw.x, $scope.draw.y, orbital.distance, 0, 2 * Math.PI, true);
       context.lineWidth = 1;
       context.strokeStyle = 'black';
       context.stroke();
     };
 
-    $scope.points = [];
+    $scope.sin = [];
+    $scope.cos = [];
+    $scope.angle = [];
+    $scope.pointx = [];
+    $scope.pointy = [];
+
+    $scope.drawPoints = function (distance) {
+
+        let z = Math.PI * 2 / 12;
+        let context = $scope.context;
+        for (let i = 1; i <= 12; i++) {
+
+            let angle = z * i;
+               //angle -= z * 3; //adjust 3 points so 12 sit on top;
+            let sin = Math.sin(angle - (z * 3));
+            let cos = Math.cos(angle - (z * 3));
+            let x1 = base + cos * distance;
+            let y1 = base + sin * distance;
+
+            $scope.sin.push(sin);
+            $scope.cos.push(cos);
+            $scope.angle.push(angle);
+            $scope.pointx.push(x1);
+            $scope.pointy.push(y1);
+
+            context.beginPath();
+            context.arc(x1, y1, 5, 0, (2 * Math.PI), false);
+            context.lineWidth = 1;
+            context.strokeStyle = 'black';
+            context.stroke();
+            context.fillStyle = "#000000";
+            context.fillText(i, x1, y1 + 20);
+            context.stroke();
+        }
+    };
+
+    var gcd = function(a, b) {
+        if ( ! b) {
+            return a;
+        }
+
+        return gcd(b, a % b);
+    };
+
+    /**
+     * we just simplify the calculation by using gcd.
+     * took me almost 24 hours to realize it. but was fun going back to the childhood
+     * @param progress
+     * @param days
+     * @returns {*}
+     */
+    let findHour = function(progress, days) {
+        let g = gcd(days, 12);
+        let ratio = Math.PI * 2 * progress / days;
+        let onehour = (Math.PI * 2 / 12) * g;
+        let hour = ratio * g;
+        let match = [hour / onehour ];
+/*        for (var i = 1; i < $scope.angle; i++) {
+            if ($scope.angle[i] > hour && $scope.angle[i] < hour) {
+                match.push(i);
+            }
+        }*/
+        console.log(match);
+        return match[0];
+    };
 
     $scope.move = function (planet) {
-        let xPos = $scope.draw.x + (planet.distance[0] * Math.cos(planet.conyanow));
-        let yPos = $scope.draw.y + (planet.distance[0] * Math.sin(planet.conyanow));
+
         let context = $scope.context;
-        planet.position.x = xPos;
-        planet.position.y = yPos;
+        let zero = moment(planet.zero);
+        let now = moment(Date.now());
+        let calibration = now.diff(zero, "days");
+        if (calibration > planet.days) {
+            calibration = calibration % planet.days;
+        }
+        let angle = (Math.PI * 2 / planet.days) * calibration;
+
+        var x1 = base + Math.cos(angle) * planet.distance;
+        var y1 = base + Math.sin(angle) * planet.distance;
+
+        $scope.drawPoints(planet.distance);
+        console.log("Calibration::::" + calibration + ", Days:::::" +  planet.days + " --- " + (calibration / planet.days));
+        planet.timeing.hour = findHour(calibration, planet.days);
+
+
         context.beginPath();
-        context.arc(xPos, yPos, 5, 0, 2*Math.PI, false);
+        context.arc(x1, y1, 5, 0, (2*Math.PI), false);
         context.fillStyle = planet.color;
         context.fill();
         context.lineWidth = planet.mass;
         context.strokeStyle = planet.color;
         context.stroke();
         context.fillStyle = "#000000";
-        context.fillText(planet.name, xPos, yPos + 20);
+        context.fillText(planet.name, x1, y1 + 20);
+
 
         context.beginPath();
-        context.moveTo(xPos, yPos);
+        context.moveTo(x1, y1);
         context.lineWidth = 1;
         context.lineTo($scope.draw.x, $scope.draw.y);
         context.strokeStyle = '#94aeba';
         context.stroke();
 
-        planet.move();
+        //we can store the angle to refer to time
+        //15 degrees per day
 
         return planet;
     };
 
-    //$scope.tractions = [{name: "hello"}, {name: "fellow"}];
-    let sanitizedposition = function(position) {
-        if (position.x !== 0 && position.y !== 0 && position.x !== null && position.y !== null) return true;
-        return false;
-    };
-
-    $scope.highlightfat = function(src, dst) {
-        highlightcore(src, dst, 5, 'blue');
-        $timeout(function () {
-            highlightclear(src, dst);
-        }, 5000);
-    };
-
-    let highlightcore = function(src, dst, size, color) {
-        let context = $scope.context;
-        context.beginPath();
-        context.moveTo(src.position.x, src.position.y);
-        context.lineTo(dst.position.x, dst.position.y);
-        context.lineWidth = size;
-        context.strokeStyle = color;
-        context.stroke();
-    };
-
-    let highlightclear = function(src, dst) {
-        highlightcore(src, dst, 5, '#eff0f1');
-    };
-
-    let highlight = function (src, dst) {
-        highlightcore(src, dst, 1, 'gray')
-    };
-
-    $scope.line = function () {
-
-        for (let i = 0; i < $scope.planets.length; i++) {
-            for (let z = 1; z < $scope.planets.length; z++) {
-                let src = $scope.planets[i];
-                let dst = $scope.planets[z];
-
-                if (sanitizedposition(src.position) && sanitizedposition(dst.position)) {
-                    highlight(src, dst);
-                    let distance = distanceofl(src.position, dst.position);
-                    if (distance !== 0) src.add(dst.name, distance, src, dst);
-                }
-            }
-        }
-    };
 
     $scope.moveday = function () {
-      $scope.context.clearRect(0, 0, 1200, 1200);
-      $scope.points = []; $scope.matrix = [];
+      $scope.context.clearRect(0, 0, base * 2, base * 2);
       $scope.star($scope.sun);
       for (var i = 0; i < $scope.planets.length; i++) {
           $scope.axis($scope.planets[i]);
           $scope.planets[i] = $scope.move($scope.planets[i]);
-          //$scope.line();
       }
     };
 
 }]);
 
-function planet() {
-
+function Planet(options) {
+    this.color = options.color;
+    this.mass = options.mass;
+    this.name = options.name;
+    this.context = options.context;
 }
+
+Planet.prototype.draw = function (x1, y1) {
+
+    context.beginPath();
+    context.arc(x1, y1, 5, 0, (2*Math.PI), false);
+    context.fillStyle = planet.color;
+    context.fill();
+    context.lineWidth = planet.mass;
+    context.strokeStyle = planet.color;
+    context.stroke();
+    context.fillStyle = "#000000";
+    context.fillText(planet.name, x1, y1 + 20);
+};
 
 var getSphere = function (a, b) {
   var a2 = Math.pow(a, a);

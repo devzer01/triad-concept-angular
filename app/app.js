@@ -8,7 +8,7 @@ var AppConfig = {
 angular.module('myApp', [
   'ngRoute',
   'myApp.landing',
-  'myApp.office', 'myApp.simple', 'myApp.orbital',
+  'myApp.office', 'myApp.simple', 'myApp.orbital', 'myApp.simulation',
   'myApp.chat',
   'myApp.version'
 ]).
