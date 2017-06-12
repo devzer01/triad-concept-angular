@@ -87,7 +87,7 @@ angular.module('myApp.simulation', ['ngRoute', 'angularjs-datetime-picker'])
         drawSectorBorder();
         drawPlanet($scope.mercury);
         drawPlanet($scope.learn);
-        animate("2017-01-12", "2017-03-31");
+        //animate("2017-01-12", "2017-03-31");
     };
 
     $scope.planets = [$scope.mercury];

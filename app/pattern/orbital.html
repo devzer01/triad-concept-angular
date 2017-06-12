@@ -1,6 +1,6 @@
 <div class="well col-md-12">
     <div class="col-md-10">
-        <canvas id="myCanvas" width="1000" height="1000">
+        <canvas id="myCanvas" width="2000" height="1400">
         </canvas>
     </div>
     <div class="col-md-2">
@@ -9,7 +9,7 @@
         <input type="text" ng-change="$scope.travelintime()" datetime-picker ng-model="timewatch" date-format="yyyy-MM-dd HH:mm:ss" />
         <button ng-click="travelintime()" type="button">Navigate</button>
         <div>{{timewatch}}</div>
-        <div>රා: <span>{{ grahaCharaya.rashi }}</span></div>
+        <div>Rashi: <span>{{ grahaCharaya.rashi }}</span></div>
         <div>Change in: <span>{{ grahaCharaya.change.minutes }} minutes At {{ grahaCharaya.change.formatted }}</span></div>
         <table class="table">
             <thead>
@@ -25,7 +25,7 @@
                     {{ planet.timeing.hour }}:{{ planet.timeing.minutes }}
                 </td>
                 <td>
-                    {{planet.timeing.constellation}}
+
                 </td>
             </tr>
         </table>

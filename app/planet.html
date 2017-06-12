@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <style>
+        #sandbox, #radar {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        #sandbox {
+            z-index: 0;
+        }
+        #radar {
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+<canvas id="sandbox" width="1000" height="1000"></canvas>
+<canvas id="radar" width="1000" height="1000"></canvas>
+<script type="text/javascript">
+$(document).ready(function() {
+
+    let radar = document.getElementById('radar');
+    let rtx = radar.getContext('2d');
+
+    let canvas = document.getElementById('sandbox');
+    let context = canvas.getContext('2d');
+    let base = {x: 300, y: 300};
+
+
+
+    let planets ={ earth: { x: 50.77093932540542, y: -50.17844268837679 },
+        mars: { x: 80.00210402306978, y: 77.82877608941651 },
+        mercury: { x: 16.21608515033404, y: 8.51748401794226 },
+        venus: { x: 36.37072962425149, y: -27.824154476757403 } };
+
+
+    function arc(base, distance, name, color) {
+        context.beginPath();
+        context.fillStyle = color;
+        context.arc(base.y + 400, base.x + 400, distance, 0, Math.PI * 2, false);
+        context.fillText(name, base.y + 400, base.x + 400);
+        context.stroke();
+
+    }
+
+    arc({x: 0, y: 0}, 2, "Sun", "red");
+
+    Object.keys(planets).forEach(function (k, v) {
+        arc(planets[k], 4, k);
+    })
+
+
+    /*line({x: p.x - 500, y: p.y}, {x: p.x + 500, y: p.y}, "A");
+    line({x: p.x, y: p.y - 300}, {x: p.x, y: p.y + 300}, "B");
+    let j = position(p, (Math.PI * 2 / 12) *2, 500);
+    let distanceJ = distance(p, j);
+    line(p, j, "J " + distanceJ.toFixed(2));
+    let distanceJ1 = distance(j, {x: j.x, y: p.y});
+    let sinJ = distanceJ / distanceJ1;
+    line(j, {x: j.x, y: p.y}, "J1 " + Math.asinh(sinJ).toFixed(2));
+
+    let j2 = position(p, (Math.PI * 2 / 12) *1, 500);
+    let distanceJ2 = distance(p, j2);
+    line(p, j2, "J2 " + distanceJ2.toFixed(2));
+
+    let distanceG = distance(p, z);
+    let j21 = position(p, (Math.PI * 2 / 24) *1, distanceG * 2);
+    let distanceJ21 = distance(p, j21);
+    line(p, j21, "J21 " + distanceJ21.toFixed(2));
+    line(z, j21, "J21 j");
+
+
+
+
+    let distanceW = distance({x: z.x, y: z.y}, {x: p.x, y: z.y});
+    let distanceY = distance({x: z.x, y: z.y}, {x: z.x, y: p.y});
+    line(p, z, "G " + distanceG.toFixed(2));
+    let sine0 = distanceG / distanceY;
+    line( {x: z.x, y: z.y}, {x: p.x, y: z.y}, "W " + distanceW.toFixed(2));
+    line( {x: z.x, y: z.y}, {x: z.x, y: p.y}, "Y " + Math.asinh(sine0).toFixed(2));*/
+
+});
+
+
+
+</script>
+</body>
+</html>

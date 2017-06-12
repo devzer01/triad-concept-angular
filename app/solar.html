@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script>
+        jQuery.noConflict();
+    </script>
+    <script src="orbital/astronomy.js"></script>
+    <script src="orbital/constellation.js"></script>
+    <script src="orbital/astro_helper.js"></script>
+    <script src="orbital/cookies.js"></script>
+    <script src="orbital/page.js"></script>
+    <style>
+        #sandbox, #radar {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        #sandbox {
+            z-index: 0;
+        }
+        #radar {
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+<!--<canvas id="sandbox" width="1000" height="1000"></canvas>
+<canvas id="radar" width="1000" height="1000"></canvas>-->
+
+<center>
+    <span style="font-family:Arial, Sans-Serif; font-size: large;">Solar System Calculator - by <a href="http://cosinekitty.com/" target="_blank">Don Cross</a></span>
+    <br />
+    <span style="font-family:Sans-Serif; font-size:small;">See also: [
+    <a href="astro_calendar.html">Astronomy Calendar</a>
+|   <a href="sky_view.html">Sky View</a>
+]</span>
+</center>
+<hr />
+<form id="mainForm" action="">
+    <table>     <!-- begin outer table for coordinate controls -->
+        <tr valign="top">
+            <td>        <!-- begin cartesian coordinate column -->
+                <table cellspacing="0">
+                    <tr>
+                        <td></td>
+                        <td class="OptionHeader">Cartesian&nbsp;coordinates</td>
+                    </tr>
+
+                    <tr id="row_Heliocentric">
+                        <td title="Select this option to see cartesian coordinates and distances relative to the center of the Sun.">
+                            <input type="radio" name="rbGroup_Cartesian" id="rb_Cartesian_Heliocentric" onclick="OnRadioButton_Cartesian(this.id)" />
+                        </td>
+                        <td title="Select this option to see cartesian coordinates and distances relative to the center of the Sun.">Heliocentric</td>
+                    </tr>
+
+                    <tr id="row_Geocentric">
+                        <td title="Select this option to see cartesian coordinates and distances relative to the center of the Earth.">
+                            <input type="radio" name="rbGroup_Cartesian" id="rb_Cartesian_Geocentric" onclick="OnRadioButton_Cartesian(this.id)" />
+                        </td>
+                        <td title="Select this option to see cartesian coordinates and distances relative to the center of the Earth.">Geocentric</td>
+                    </tr>
+
+                    <tr id="row_None">
+                        <td title="Select this option to hide the cartesian coordinates and distances.">
+                            <input type="radio" name="rbGroup_Cartesian" id="rb_Cartesian_None" onclick="OnRadioButton_Cartesian(this.id)" />
+                        </td>
+                        <td title="Select this option to hide the cartesian coordinates and distances.">(none)</td>
+                    </tr>
+                </table>
+            </td>       <!-- end cartesian coordinate column -->
+
+            <td width="8%"></td>
+
+            <td>        <!-- begin angular coordinate column -->
+                <table cellspacing="0">
+                    <tr>
+                        <td></td>
+                        <td class="OptionHeader">Angular&nbsp;coordinates</td>
+                    </tr>
+
+                    <tr id="row_Ecliptic" title="Angles relative to plane of Earth's orbit around the Sun.">
+                        <td>
+                            <input type="radio" name="rbGroup_Angular" id="rb_Angular_Ecliptic" onclick="OnRadioButton_Angular(this.id)" />
+                        </td>
+                        <td><a href="http://en.wikipedia.org/wiki/Ecliptic_coordinate_system" target="_blank">Ecliptic</a></td>
+                    </tr>
+
+                    <tr id="row_Equatorial" title="Angles relative to Earth's equator.">
+                        <td>
+                            <input type="radio" name="rbGroup_Angular" id="rb_Angular_Equatorial" onclick="OnRadioButton_Angular(this.id)" />
+                        </td>
+                        <td><a href="http://en.wikipedia.org/wiki/Equatorial_coordinate_system" target="_blank">Equatorial</a></td>
+                    </tr>
+
+                    <tr id="row_Horizontal" title="Angles relative to observer's horizon.">
+                        <td>
+                            <input type="radio" name="rbGroup_Angular" id="rb_Angular_Horizontal" onclick="OnRadioButton_Angular(this.id)" />
+                        </td>
+                        <td><a href="http://en.wikipedia.org/wiki/Horizontal_coordinate_system" target="_blank">Horizontal</a></td>
+                    </tr>
+                </table>
+            </td>       <!-- end angular coordinate column -->
+
+            <td width="8%"></td>
+
+            <td>        <!-- begin geographic coordinate column -->
+                <table>
+                    <tr>
+                        <td colspan="2" class="OptionHeader">Observer's&nbsp;location</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select id="GeoLat_NS" class="PullDown" onchange="OnGeoLatLongChange()">
+                                <option value="N">N</option>
+                                <option value="S">S</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input id="GeoLat_Value" type="text" size="10" class="EditLatLonBox" onkeyup="OnGeoLatLongChange()" />&nbsp;&deg;&nbsp;lat
+                        </td>
+                        <td>
+                            <div id="GeoLat_Feedback" style="font-family:Monospace;"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select id="GeoLong_EW" class="PullDown" onchange="OnGeoLatLongChange()">
+                                <option value="W">W</option>
+                                <option value="E">E</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input id="GeoLong_Value" type="text" size="10" class="EditLatLonBox" onkeyup="OnGeoLatLongChange()" />&nbsp;&deg;&nbsp;long
+                        </td>
+                        <td>
+                            <div id="GeoLong_Feedback" style="font-family:Monospace;"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><input id="SaveButton" disabled="disabled" type="button" value="Save" title="Saves your edited coordinates and starts using them." onclick="SaveGeographicCoordinates();CalculateSolarSystem();" /></td>
+                    </tr>
+                </table>
+            </td>       <!-- end geographic coordinate column -->
+        </tr>
+    </table>    <!-- end outer table for all controls -->
+
+
+    <table>
+        <tr>
+            <td>
+                <table class="ControlBox">     <!-- date/time controls begin -->
+                    <tr>
+                        <td colspan="6">
+                            <center>
+                                <table>
+                                    <tr title="Selects whether the data on this page is refreshed once every second.">
+                                        <td><input type="checkbox" id="checkbox_RealTime" onclick="OnCheckBoxRealTime()" /></td>
+                                        <td class="OptionHeader">Real-time update</td>
+                                    </tr>
+                                </table>
+                            </center>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td><input type="text" size="4" id="edit_Year"   class="EditDateBox" onkeyup="OnDateTimeDirty()" /></td>
+                        <td><input type="text" size="2" id="edit_Month"  class="EditDateBox" onkeyup="OnDateTimeDirty()" /></td>
+                        <td><input type="text" size="2" id="edit_Day"    class="EditDateBox" onkeyup="OnDateTimeDirty()" /></td>
+                        <td><input type="text" size="2" id="edit_Hour"   class="EditDateBox" onkeyup="OnDateTimeDirty()" /></td>
+                        <td><input type="text" size="2" id="edit_Minute" class="EditDateBox" onkeyup="OnDateTimeDirty()" /></td>
+                        <td><input type="text" size="2" id="edit_Second" class="EditDateBox" onkeyup="OnDateTimeDirty()" /></td>
+
+                        <td><input type="button" value="Set" id="button_SetDateTime" onclick="OnSetDateTime()" disabled="disabled" /></td>
+                    </tr>
+                    <tr class="DateTimeCaption">
+                        <td>year</td>
+                        <td>mon</td>
+                        <td>day</td>
+                        <td>hr</td>
+                        <td>min</td>
+                        <td>sec</td>
+
+                        <td>
+                            <input type="button" value="&minus;" id="button_SubtractOneDay" onclick="AddDays(-1)" disabled="disabled" title="Subtract 1 day" />
+                            <input type="button" value="+" id="button_AddOneDay" onclick="AddDays(1)" disabled="disabled" title="Add 1 day" />
+                        </td>
+                    </tr>
+                </table>    <!-- date/time controls end -->
+            </td>
+
+            <td width="30px"></td>
+
+            <td>
+                <table class="ControlBox">  <!-- angle mode options -->
+                    <tr>
+                        <td colspan="2" class="OptionHeader">Angle display mode</td>
+                    </tr>
+                    <tr>
+                        <td><input type="radio" name="rbGroup_AngleMode" id="rb_AngleMode_dms" onclick="SetAngleMode('dms')" /></td>
+                        <td class="FlatText">dd&deg; mm' ss&quot;</td>
+                    </tr>
+                    <tr>
+                        <td><input type="radio" name="rbGroup_AngleMode" id="rb_AngleMode_dmm" onclick="SetAngleMode('dmm')" /></td>
+                        <td class="FlatText">dd&deg; mm.mm'</td>
+                    </tr>
+                    <tr>
+                        <td><input type="radio" name="rbGroup_AngleMode" id="rb_AngleMode_decimal" onclick="SetAngleMode('decimal')" /></td>
+                        <td class="FlatText">dd.ddddd</td>
+                    </tr>
+                </table>
+            </td>
+
+            <td width="30px"></td>
+
+            <td>
+                <table border="1" cellpadding="2" cellspacing="0">     <!-- extra info table: rise/set/culm/etc -->
+                    <tr>
+                        <td colspan="2" style="text-align:center;">
+                            <select id="selectBody" onchange="OnSelectBody()">
+                                <option value="Sun">Sun</option>
+                                <option value="Moon">Moon</option>
+                                <option value="Mercury">Mercury</option>
+                                <option value="Venus">Venus</option>
+                                <option value="Mars">Mars</option>
+                                <option value="Ceres">Ceres</option>
+                                <option value="Pallas">Pallas</option>
+                                <option value="Juno">Juno</option>
+                                <option value="Vesta">Vesta</option>
+                                <option value="Jupiter">Jupiter</option>
+                                <option value="Saturn">Saturn</option>
+                                <option value="Uranus">Uranus</option>
+                                <option value="Neptune">Neptune</option>
+                                <option value="Pluto">Pluto</option>
+                            </select>
+                            <input type="button" value="Details..." onclick="OnDetailsButton()" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;">Rise</td>
+                        <td><div id="divRiseTime" class="EventTimeData"></div></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;">Culm</td>
+                        <td><div id="divCulmTime" class="EventTimeData"></div></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;">Set</td>
+                        <td><div id="divSetTime" class="EventTimeData"></div></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <p>
+        <input type="checkbox" id="checkbox_BrightObjectsOnly" onclick="OnVisibilityChange()" />
+        Show only those objects bright enough to be seen with the naked eye.<br/>
+
+        <input type="checkbox" id="checkbox_RisenObjectsOnly" onclick="OnVisibilityChange()" />
+        Show only objects that are above the horizon.</br>
+
+        <input type="checkbox" id="checkbox_ShowComets" onclick="OnVisibilityChange()" />
+        Include comets.<br/>
+
+        <input type="checkbox" id="checkbox_ShowMinor" onclick="OnVisibilityChange()" />
+        Include minor asteroids.<br/>
+    </p>
+</form>
+<div id="divDateTime"></div>
+<table id="planetTable" border="1" cellpadding="2" cellspacing="0">
+    <tr>
+        <th class="TableHeader" style="width: 8em;" title="Names of brighter objects are dark, and names of dimmer objects (invisible to the naked eye) are gray.">Object</th>
+        <th id="th_x">x</th>
+        <th id="th_y">y</th>
+        <th id="th_z">z</th>
+        <th id="th_distance" class="TableHeader" title="Distance of the object from the center of the Earth (when in geocentric mode) or the Sun (when in heliocentric mode), expressed in AU.">distance in <a href="http://en.wikipedia.org/wiki/Astronomical_units" target="_blank">AU</a></th>
+        <th class="TableHeader" title="Visual Magnitude">Mag</th>
+        <th class="TableHeader" title="Elongation: the angle between the object and the Sun, as seen from Earth.">Elong</th>
+        <th class="TableHeader" title="Constellation">Con</th>
+        <th class="TableHeader" id="th_Angle1"></th>
+        <th class="TableHeader" id="th_Angle2"></th>
+    </tr>
+</table>
+
+<canvas name="solar" id="solar" width="1000" height="1000"></canvas>
+
+<script type="text/javascript">
+    jQuery(document).ready(function (e) {
+        InitPage();
+    });
+</script>
+</body>
+</html>
